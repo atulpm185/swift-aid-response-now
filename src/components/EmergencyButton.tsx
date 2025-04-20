@@ -8,6 +8,7 @@ interface EmergencyButtonProps {
   onClick: () => void;
   className?: string;
   isPulsing?: boolean;
+  variant?: "emergency" | "info" | "warning";
 }
 
 const EmergencyButton = ({
@@ -16,13 +17,26 @@ const EmergencyButton = ({
   onClick,
   className,
   isPulsing = false,
+  variant = "emergency",
 }: EmergencyButtonProps) => {
+  const baseClass = 
+    variant === "emergency" 
+      ? "emergency-button" 
+      : variant === "info" 
+        ? "info-button" 
+        : "warning-button";
+  
   return (
     <button
       onClick={onClick}
       className={cn(
-        "emergency-button",
-        isPulsing && "animate-pulse-emergency",
+        baseClass,
+        isPulsing && 
+          (variant === "emergency" 
+            ? "animate-pulse-emergency" 
+            : variant === "info" 
+              ? "animate-pulse" 
+              : "animate-pulse"), 
         className
       )}
     >

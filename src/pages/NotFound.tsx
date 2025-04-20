@@ -1,8 +1,8 @@
 
-import { useLocation } from "react-router-dom";
+import { useLocation, Link } from "react-router-dom";
 import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { AlertTriangle } from "lucide-react";
+import { AlertTriangle, Home } from "lucide-react";
 
 const NotFound = () => {
   const location = useLocation();
@@ -24,13 +24,18 @@ const NotFound = () => {
         <p className="text-muted-foreground mb-8">
           The emergency page you are looking for doesn't exist or has been moved.
         </p>
-        <Button 
-          onClick={() => window.location.href = "/"}
-          variant="default"
-          className="bg-emergency hover:bg-emergency-hover"
-        >
-          Return to Safety
-        </Button>
+        <div className="space-x-4">
+          <Button 
+            variant="default"
+            className="bg-emergency hover:bg-emergency-hover"
+            asChild
+          >
+            <Link to="/">
+              <Home className="mr-2 h-4 w-4" />
+              Return to Safety
+            </Link>
+          </Button>
+        </div>
       </div>
     </div>
   );
