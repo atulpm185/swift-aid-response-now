@@ -1,7 +1,6 @@
-
 import React, { useState } from "react";
 import { toast } from "sonner";
-import { FileText, UploadCloud, Camera, Paperclip, Send } from "lucide-react";
+import { FileText, UploadCloud, Camera, Paperclip, Send, MapPin } from "lucide-react";
 import Header from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";

@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { toast } from "sonner";
 import { UserRoundCog, Save, PlusCircle, Heart, Info, AlertTriangle } from "lucide-react";
@@ -10,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { MedicalCondition } from "@/types/profile";
 
 const ProfilePage = () => {
   const [profile, setProfile] = useState({
@@ -23,7 +23,7 @@ const ProfilePage = () => {
     notes: "Carries inhaler at all times",
   });
   
-  const [medicalInfo, setMedicalInfo] = useState([
+  const [medicalInfo, setMedicalInfo] = useState<MedicalCondition[]>([
     { id: "1", type: "allergy", value: "Penicillin", severity: "High" },
     { id: "2", type: "condition", value: "Asthma", severity: "Moderate" },
     { id: "3", type: "medication", value: "Albuterol Inhaler", dosage: "2 puffs as needed" },
