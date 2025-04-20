@@ -1,6 +1,7 @@
 
 import React from "react";
 import { toast } from "sonner";
+import { App } from '@capacitor/app';
 import { 
   PhoneCall, 
   Ambulance, 
@@ -21,8 +22,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 const Index = () => {
-  const handleEmergencyCall = (service: string) => {
-    // In a real app, this would use a native call API
+  const handleEmergencyCall = async (service: string) => {
     const phoneNumbers: Record<string, string> = {
       "Police": "911",
       "Ambulance": "911",
@@ -32,16 +32,16 @@ const Index = () => {
     
     const number = phoneNumbers[service] || "911";
     
-    toast(`Calling ${service} at ${number}...`, {
-      description: "In a real app, this would open your phone dialer.",
-      action: {
-        label: "Cancel",
-        onClick: () => toast.dismiss(),
-      },
-    });
-    
-    console.log(`Calling ${service} at ${number}`);
-    // window.location.href = `tel:${number}`;
+    try {
+      // Open native phone dialer
+      const url = `tel:${number}`;
+      await App.openUrl({ url });
+    } catch (error) {
+      console.error('Error making phone call:', error);
+      toast.error(`Could not initiate call to ${service}`, {
+        description: "Please check your device permissions",
+      });
+    }
   };
 
   return (

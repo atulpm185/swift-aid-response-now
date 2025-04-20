@@ -1,7 +1,7 @@
-
 import React, { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { MapPin, Share2, Compass, Locate } from "lucide-react";
+import { Geolocation } from '@capacitor/geolocation';
 import Header from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -15,32 +15,33 @@ const LocationPage = () => {
   const [shareEnabled, setShareEnabled] = useState(false);
   const [accuracy, setAccuracy] = useState<number | null>(null);
   
-  const handleGetLocation = () => {
+  const handleGetLocation = async () => {
     setIsLocating(true);
     
-    if (!navigator.geolocation) {
-      toast.error("Geolocation is not supported by your browser");
+    try {
+      const permissionStatus = await Geolocation.checkPermissions();
+      if (permissionStatus.location === 'prompt' || permissionStatus.location === 'prompt-with-rationale') {
+        await Geolocation.requestPermissions();
+      }
+      
+      const position = await Geolocation.getCurrentPosition({
+        enableHighAccuracy: true,
+        timeout: 15000,
+        maximumAge: 10000
+      });
+      
+      setLocation({
+        lat: position.coords.latitude,
+        lng: position.coords.longitude,
+      });
+      setAccuracy(position.coords.accuracy);
       setIsLocating(false);
-      return;
+      toast.success("Location updated successfully");
+    } catch (error) {
+      console.error("Error getting location:", error);
+      toast.error("Could not retrieve your location. Please check your permissions.");
+      setIsLocating(false);
     }
-    
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        setLocation({
-          lat: position.coords.latitude,
-          lng: position.coords.longitude,
-        });
-        setAccuracy(position.coords.accuracy);
-        setIsLocating(false);
-        toast.success("Location updated successfully");
-      },
-      (error) => {
-        console.error("Error getting location:", error);
-        toast.error("Could not retrieve your location. Please check your permissions.");
-        setIsLocating(false);
-      },
-      { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
-    );
   };
   
   const handleShareLocation = () => {
@@ -49,32 +50,42 @@ const LocationPage = () => {
       return;
     }
     
-    // In a real app, this would send the location to emergency contacts
     toast.success("Location shared with emergency contacts", {
       description: "Your emergency contacts have been notified of your location.",
     });
   };
   
-  // In a real app, this might be a websocket or periodic update
   useEffect(() => {
-    if (shareEnabled && navigator.geolocation) {
-      const intervalId = setInterval(() => {
-        navigator.geolocation.getCurrentPosition(
-          (position) => {
-            setLocation({
-              lat: position.coords.latitude,
-              lng: position.coords.longitude,
-            });
-            setAccuracy(position.coords.accuracy);
-          },
-          (error) => {
-            console.error("Error updating location:", error);
-          }
-        );
-      }, 30000); // Update every 30 seconds
-      
-      return () => clearInterval(intervalId);
-    }
+    let watchId: string;
+    
+    const startWatching = async () => {
+      if (shareEnabled) {
+        try {
+          watchId = await Geolocation.watchPosition(
+            { enableHighAccuracy: true },
+            (position) => {
+              if (position) {
+                setLocation({
+                  lat: position.coords.latitude,
+                  lng: position.coords.longitude,
+                });
+                setAccuracy(position.coords.accuracy);
+              }
+            }
+          );
+        } catch (error) {
+          console.error("Error watching location:", error);
+        }
+      }
+    };
+    
+    startWatching();
+    
+    return () => {
+      if (watchId) {
+        Geolocation.clearWatch({ id: watchId });
+      }
+    };
   }, [shareEnabled]);
   
   return (
